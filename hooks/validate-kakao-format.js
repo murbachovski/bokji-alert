@@ -16,15 +16,27 @@
  * Length limit: the MCP tool documents "최대 200자". Measured against the live API
  * (87 chars / 233 bytes of Korean sent successfully), so the unit is characters,
  * not bytes. Overridable via BOKJI_MSG_LIMIT_CHARS.
+ *
+ * The answer block must carry the report link. The 200-char cap means the message
+ * cannot hold the listings themselves, so a message without a link is a message
+ * with nothing behind it -- which is exactly what happens when the artifact step
+ * gets skipped. Requiring the URL here makes that skip impossible: the send is
+ * blocked until the report exists. The only exception is the documented
+ * zero-result path, which has no report to link to.
  */
 
 const HEADER_REQ = '- 요청 사항';
 const HEADER_ANS = '- 요청 답변';
 
+// Deliberately permissive: match the artifact path, not a uuid shape, so a
+// future id format does not silently start blocking every send.
+const ARTIFACT_URL = /https:\/\/claude\.ai\/code\/artifact\/\S+/;
+const NO_RESULT = '조건에 맞는 공고 없음';
+
 // Exact headers, both blocks non-empty, exactly one blank line between them.
 const FORMAT = /^- 요청 사항\n(?!\n)[\s\S]*?\n\n- 요청 답변\n(?!\n)[\s\S]*$/;
 
-const TEMPLATE = `${HEADER_REQ}\n{검색 조건 요약}\n\n${HEADER_ANS}\n{N건 추천 → URL}`;
+const TEMPLATE = `${HEADER_REQ}\n{검색 조건 요약}\n\n${HEADER_ANS}\n{N건 추천} → https://claude.ai/code/artifact/{id}`;
 
 const limitChars = Number(process.env.BOKJI_MSG_LIMIT_CHARS) || 200;
 
@@ -70,6 +82,13 @@ function validate(message) {
   const headerLines = message.split('\n').filter((line) => /^- 요청 /.test(line));
   if (headerLines.length !== 2) {
     deny(`"- 요청 " 로 시작하는 줄은 헤더 2개뿐이어야 하는데 ${headerLines.length}개입니다. 블록을 추가하지 마세요.`);
+  }
+
+  const answer = message.split(`\n\n${HEADER_ANS}\n`)[1] ?? '';
+  if (!ARTIFACT_URL.test(answer) && answer.trim() !== NO_RESULT) {
+    deny(
+      `"요청 답변" 블록에 리포트 링크(https://claude.ai/code/artifact/...)가 없습니다. 카카오톡 200자에는 공고 상세가 들어가지 않으므로 링크가 본문입니다. Artifact 리포트를 먼저 발행하고 그 URL을 넣어 재전송하세요. 검색 결과가 0건일 때만 링크 없이 "${NO_RESULT}" 로 보냅니다.`,
+    );
   }
 
   const chars = [...message].length;
