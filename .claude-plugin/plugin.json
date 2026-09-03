@@ -1,0 +1,25 @@
+{
+  "name": "bokji-alert",
+  "description": "복지니 MCP로 나에게 맞는 복지 공고를 찾아 HTML 리포트로 정리하고, 카카오톡 나챗방으로 고정 포맷 알림을 보냅니다.",
+  "version": "0.1.0",
+  "author": {
+    "name": "murbachovski",
+    "url": "https://github.com/murbachovski"
+  },
+  "keywords": ["welfare", "korea", "kakao", "playmcp", "bokjiro"],
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "mcp__.*__KakaotalkChat-MemoChat",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/validate-kakao-format.js\"",
+            "timeout": 5,
+            "statusMessage": "카카오톡 메시지 포맷 검증 중..."
+          }
+        ]
+      }
+    ]
+  }
+}

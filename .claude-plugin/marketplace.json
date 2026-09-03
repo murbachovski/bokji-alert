@@ -1,0 +1,17 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "bokji-alert",
+  "description": "복지 공고 검색 → HTML 리포트 → 카카오톡 전송 플러그인",
+  "owner": {
+    "name": "murbachovski",
+    "url": "https://github.com/murbachovski"
+  },
+  "plugins": [
+    {
+      "name": "bokji-alert",
+      "description": "복지니로 복지 공고를 찾아 리포트로 정리하고 카카오톡 나챗방으로 보냅니다.",
+      "source": "./",
+      "category": "productivity"
+    }
+  ]
+}
