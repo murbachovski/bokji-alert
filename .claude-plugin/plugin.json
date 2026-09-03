@@ -1,7 +1,7 @@
 {
   "name": "bokji-alert",
   "description": "복지니 MCP로 나에게 맞는 복지 공고를 찾아 HTML 리포트로 정리하고, 카카오톡 나챗방으로 고정 포맷 알림을 보냅니다.",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "author": {
     "name": "murbachovski",
     "url": "https://github.com/murbachovski"
