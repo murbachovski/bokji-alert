@@ -79,7 +79,9 @@ Artifact 도구 요구사항대로 **먼저 `artifact-design` 스킬을 로드**
 - `favicon`: 첫 발행 시에만 지정
 - `description`: 한 문장
 
-발행 결과 URL을 확보한다. 이게 카카오톡 메시지에 들어간다.
+발행 결과 URL을 확보한다. 이게 카카오톡 메시지에 들어간다. 실측 길이 62자(`https://claude.ai/code/artifact/<uuid>`).
+
+Artifact는 기본이 비공개다. 카카오톡 링크를 **휴대폰에서** 열면 카카오톡 인앱 브라우저에 claude.ai 세션이 없어 리포트가 안 보일 수 있다. 이 경우 Artifact 공유 메뉴에서 링크 공유를 켜야 한다. 전송 후 사용자에게 한 번 확인시킨다.
 
 ### 6. 카카오톡 전송 — `KakaotalkChat-MemoChat`
 
@@ -127,5 +129,5 @@ Artifact 도구 요구사항대로 **먼저 `artifact-design` 스킬을 로드**
 서울 관악구 30세 청년 주거 지원
 
 - 요청 답변
-3건 추천 → https://claude.ai/public/artifacts/0f3a1c9e-4b21-4a0d-9c77-2b8e5d61aa30
+3건 추천 → https://claude.ai/code/artifact/c19a4f11-55f9-410c-93b7-2ac555ddadd0
 ```
