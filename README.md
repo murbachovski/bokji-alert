@@ -38,12 +38,12 @@
 /bokji <조건>
    │
    ├─ 1. 프로필 로드      ~/.claude/bokji-profile.json (없으면 1회 수집 후 저장)
-   ├─ 2. 복지 검색        bokjini-get_welfare_list  (키워드 1개 + 필터, 재시도 최대 2회)
-   ├─ 3. 후보 ≤8건 선별   bokjini-rank_candidates
-   ├─ 4. 상위 3건 상세    bokjini-get_welfare_detailed (병렬)
+   ├─ 2. 복지 검색        bokjini-get_welfare_list  (가구 구성원별 · 지자체/중앙 분리, 재시도 최대 2회)
+   ├─ 3. 후보 ≤8건 선별   bokjini-rank_candidates (+ 연령·가구요건 배제 사유 확정)
+   ├─ 4. 상위 3~6건 상세  bokjini-get_welfare_detailed (병렬)
    ├─ 5. HTML 리포트      Artifact 발행 → URL
    └─ 6. 카카오톡 전송    KakaotalkChat-MemoChat (고정 포맷 + URL)
-              ↑ PreToolUse 훅이 포맷·길이 검증. 어긋나면 차단하고 교정 후 재전송.
+              ↑ PreToolUse 훅이 포맷·길이·리포트 링크 검증. 어긋나면 차단하고 교정 후 재전송.
 ```
 
 `KakaotalkChat-MemoChat` 은 `message` 문자열 하나만 받고 **200자** 제한이 있다(문자 기준 — 실측 확인). 첨부 파라미터가 없어 공고 상세를 본문에 담을 수 없다. 그래서 상세는 HTML 리포트로 빼고 카카오톡에는 링크만 보낸다.
@@ -67,6 +67,9 @@
 - `- 요청 ` 으로 시작하는 줄은 헤더 2개뿐 (블록 추가 금지)
 - 마크다운(`**`, `__`, `#`, 백틱)·이모지 금지
 - 200자 이내 (`BOKJI_MSG_LIMIT_CHARS` 로 조정 가능)
+- **답변 블록에 리포트 링크(`https://claude.ai/code/artifact/...`)가 있을 것**
+
+마지막 항목이 리포트 발행 단계를 강제한다. 200자에는 공고 상세가 들어가지 않으므로 링크 없는 메시지는 내용 없는 메시지다. 링크를 요구하면 리포트를 만들기 전에는 전송이 성립하지 않는다. 검색 결과가 0건일 때만 예외로 `조건에 맞는 공고 없음` 을 링크 없이 보낸다.
 
 위반 시 전송을 차단하고 사유와 정확한 템플릿을 돌려주어 교정 후 재전송하게 한다.
 
@@ -84,9 +87,14 @@
   "province": "서울특별시",
   "district": "관악구",
   "household_type": "저소득",
-  "interest_theme": "주거"
+  "interest_theme": "주거",
+  "dependents": [
+    { "age": 3, "relation": "자녀" }
+  ]
 }
 ```
+
+`dependents` 는 부양 중인 가족이 있을 때만 넣는다. 복지 제도는 신청자가 아니라 구성원 각각의 나이에 붙기 때문에, 이 값이 없으면 검색이 통째로 빗나간다. 50대 보호자 + 3세 자녀 가구에서 실제로 받는 제도는 대부분 `영유아` 축에 있고 `중장년` 검색에는 하나도 잡히지 않는다.
 
 ## 이미 PlayMCP를 커넥터로 쓰고 있다면
 
